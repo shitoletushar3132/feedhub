@@ -43,7 +43,6 @@ public class LoginServlet extends HttpServlet {
 
 		User user = userDAO.authenticate(email, password);
 
-		System.out.println(user);
 		if (user != null) {
 			// Login successful
 			HttpSession session = request.getSession();

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,12 +25,14 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public boolean addUser(User user) {
 		boolean res = false;
-		String sql = "INSERT INTO users (userName,email,password,role) VALUES (?,?,?,?)";
+		String sql = "INSERT INTO users (username,email,password,role_id) VALUES (?,?,?,?)";
 
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 			pstmt.setString(1, user.getUsername());
 			pstmt.setString(2, user.getEmail());
 			pstmt.setString(3, user.getPassword());
+
+			System.out.println(user.getRole());
 			pstmt.setInt(4, user.getRole().getId());
 
 			int rs = pstmt.executeUpdate();
@@ -44,6 +47,37 @@ public class UserDAOImpl implements UserDAO {
 
 		return res;
 
+	}
+
+	@Override
+	public int addUserAndReturnId(User user) {
+		int generatedId = -1;
+		String sql = "INSERT INTO users (username, email, password, role_id) VALUES (?, ?, ?, ?)";
+
+		try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+			pstmt.setString(1, user.getUsername());
+			pstmt.setString(2, user.getEmail());
+			pstmt.setString(3, user.getPassword());
+			pstmt.setInt(4, user.getRole().getId());
+
+			int rows = pstmt.executeUpdate();
+
+			if (rows > 0) {
+				try (ResultSet rs = pstmt.getGeneratedKeys()) {
+					if (rs.next()) {
+						generatedId = rs.getInt(1);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			if (e.getErrorCode() == 1062) {
+				System.out.println("Duplicate entry for username or email.");
+			} else {
+				e.printStackTrace();
+			}
+		}
+
+		return generatedId;
 	}
 
 	@Override
