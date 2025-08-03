@@ -137,32 +137,80 @@ public class StudentDAOImpl implements StudentDAO {
 
 	@Override
 	public boolean updateStudent(Student student) {
-		String sql = "UPDATE students SET name = ?, roll_no = ? WHERE id = ?";
+		String fetchUserIdSql = "SELECT user_id FROM students WHERE id = ?";
+		String updateStudentSql = "UPDATE students SET name = ?, roll_no = ? WHERE id = ?";
+		String updateUserSql = "UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?";
 
-		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setString(1, student.getName());
-			pstmt.setString(2, student.getRollNo());
-			pstmt.setInt(3, student.getId());
+		try (PreparedStatement fetchStmt = conn.prepareStatement(fetchUserIdSql)) {
+			fetchStmt.setInt(1, student.getId());
+			ResultSet rs = fetchStmt.executeQuery();
 
-			int rs = pstmt.executeUpdate();
-			return rs > 0;
+			if (rs.next()) {
+				int userId = rs.getInt("user_id");
+
+				// Start transaction
+				conn.setAutoCommit(false);
+
+				// 1. Update student info
+				try (PreparedStatement updateStudentStmt = conn.prepareStatement(updateStudentSql)) {
+					updateStudentStmt.setString(1, student.getName());
+					updateStudentStmt.setString(2, student.getRollNo());
+					updateStudentStmt.setInt(3, student.getId());
+					updateStudentStmt.executeUpdate();
+				}
+
+				// 2. Update user info
+				try (PreparedStatement updateUserStmt = conn.prepareStatement(updateUserSql)) {
+					updateUserStmt.setString(1, student.getUser().getUsername());
+					updateUserStmt.setString(2, student.getUser().getEmail());
+					updateUserStmt.setString(3, student.getUser().getPassword());
+					updateUserStmt.setInt(4, userId);
+					updateUserStmt.executeUpdate();
+				}
+
+				// Commit transaction
+				conn.commit();
+				conn.setAutoCommit(true);
+
+				return true;
+
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			try {
+				conn.rollback(); // rollback in case of error
+				conn.setAutoCommit(true);
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
 		}
+
 		return false;
 	}
 
 	@Override
-	public boolean deleteStudent(int id) {
-		String sql = "DELETE FROM students WHERE id = ?";
+	public boolean deleteStudent(int studentId) {
+		String getUserIdQuery = "SELECT user_id FROM students WHERE id = ?";
+		String deleteUserQuery = "DELETE FROM users WHERE id = ?";
 
-		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, id);
-			int rs = pstmt.executeUpdate();
-			return rs > 0;
+		try (PreparedStatement getUserStmt = conn.prepareStatement(getUserIdQuery);) {
+			getUserStmt.setInt(1, studentId);
+			ResultSet rs = getUserStmt.executeQuery();
+
+			if (rs.next()) {
+				int userId = rs.getInt("user_id");
+
+				try (PreparedStatement deleteUserStmt = conn.prepareStatement(deleteUserQuery)) {
+					deleteUserStmt.setInt(1, userId);
+					int rows = deleteUserStmt.executeUpdate();
+					return rows > 0;
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
 		return false;
 	}
+
 }

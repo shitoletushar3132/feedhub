@@ -1,6 +1,13 @@
+<%@page import="java.net.http.HttpClient.Redirect"%>
 <%@ page session="true"%>
 <%@ page import="com.feedhub.model.User"%>
 <%@ page import="com.feedhub.model.Role"%>
+
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+response.setDateHeader("Expires", 0); // Proxies
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,12 +21,17 @@
 	src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
+
+
 <body>
 	<%
 	User currentUser = (User) session.getAttribute("user");
 	String roleName = "";
 	if (currentUser != null && currentUser.getRole() != null) {
 		roleName = currentUser.getRole().getName();
+	} else {
+		response.sendRedirect("/feedhub/login.jsp"); // Redirect to login page
+		return;
 	}
 	%>
 
@@ -83,10 +95,17 @@
 					<%
 					if (currentUser != null) {
 					%>
-					<li class="nav-item"><a class="nav-link text-danger"
-						href="<%=request.getContextPath()%>/logout">Logout</a></li>
+					<li class="nav-item">
+						<form method="post" action="/feedhub/logout"
+							style="display: inline;">
+							<button type="submit" class="nav-link btn btn-link text-danger"
+								style="text-decoration: none;">Logout</button>
+						</form>
+					</li>
 					<%
 					}
+					%>
+
 					%>
 				</ul>
 			</div>

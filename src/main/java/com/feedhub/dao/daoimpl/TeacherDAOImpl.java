@@ -32,7 +32,7 @@ public class TeacherDAOImpl implements TeacherDAO {
 
 	@Override
 	public Teacher getTeacherById(int id) {
-		String sql = "SELECT * FROM teachers WHERE id = ?";
+		String sql = "SELECT * FROM teachers AS t JOIN users as u ON t.user_id = u.id WHERE id = ?";
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
@@ -42,6 +42,7 @@ public class TeacherDAOImpl implements TeacherDAO {
 				t.setName(rs.getString("name"));
 				User user = new User();
 				user.setId(rs.getInt("user_id"));
+				user.setEmail(rs.getString("email"));
 				t.setUser(user);
 				return t;
 			}
@@ -53,7 +54,7 @@ public class TeacherDAOImpl implements TeacherDAO {
 
 	@Override
 	public Teacher getTeacherByName(String name) {
-		String sql = "SELECT * FROM teachers WHERE name = ?";
+		String sql = "SELECT * FROM teachers AS t JOIN users as u ON t.user_id = u.id WHERE name = ?";
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, name);
 			ResultSet rs = ps.executeQuery();
@@ -63,6 +64,7 @@ public class TeacherDAOImpl implements TeacherDAO {
 				t.setName(rs.getString("name"));
 				User user = new User();
 				user.setId(rs.getInt("user_id"));
+				user.setEmail(rs.getString("email"));
 				t.setUser(user);
 				return t;
 			}
@@ -75,7 +77,7 @@ public class TeacherDAOImpl implements TeacherDAO {
 	@Override
 	public List<Teacher> getAllTeachers() {
 		List<Teacher> teachers = new ArrayList<>();
-		String sql = "SELECT * FROM teachers";
+		String sql = "SELECT * FROM teachers AS t JOIN users AS u ON u.id = t.user_id";
 		try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
 			while (rs.next()) {
 				Teacher t = new Teacher();
@@ -84,6 +86,7 @@ public class TeacherDAOImpl implements TeacherDAO {
 				User user = new User();
 				user.setId(rs.getInt("user_id"));
 				t.setUser(user);
+				user.setEmail(rs.getString("email"));
 				teachers.add(t);
 			}
 		} catch (SQLException e) {
@@ -109,14 +112,26 @@ public class TeacherDAOImpl implements TeacherDAO {
 
 	@Override
 	public boolean deleteTeacher(int id) {
-		String sql = "DELETE FROM teachers WHERE id = ?";
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setInt(1, id);
-			int rs = ps.executeUpdate();
-			return rs > 0;
+		String getUserIdSql = "SELECT user_id FROM teachers WHERE id = ?";
+		String deleteUserSql = "DELETE FROM users WHERE id = ?";
+
+		try (PreparedStatement ps1 = conn.prepareStatement(getUserIdSql)) {
+			ps1.setInt(1, id);
+			ResultSet rs = ps1.executeQuery();
+			if (rs.next()) {
+				int userId = rs.getInt("user_id");
+
+				try (PreparedStatement ps2 = conn.prepareStatement(deleteUserSql)) {
+					ps2.setInt(1, userId);
+					int rowsAffected = ps2.executeUpdate();
+					return rowsAffected > 0;
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+
 		return false;
 	}
+
 }

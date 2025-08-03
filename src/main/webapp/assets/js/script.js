@@ -30,11 +30,43 @@ function openModal(title = 'Add Student', id = '', name = '', rollNo = '', email
 
 
 function closeModal() {
-    document.getElementById('formModal').style.display = 'none';
-    const form = document.querySelector('form');
-    form.reset();
-    form.action = 'addStudent';
-    document.getElementById('formTitle').textContent = 'Add Student';
+	document.getElementById('formModal').style.display = 'none';
+	const form = document.querySelector('form');
+	form.reset();
+	form.action = 'addStudent';
+	document.getElementById('formTitle').textContent = 'Add Student';
+}
+
+
+
+function openTeacherModal(title = 'Add Teacher', id = '', name = '', email = '', username = '') {
+	document.getElementById('formTeacherModal').style.display = 'block';
+	document.getElementById('formTitle').textContent = title;
+
+	const form = document.getElementById('teacherForm');
+	form.name.value = name;
+	form.email.value = email;
+	form.username.value = username;
+
+	const passwordInput = form.password;
+	if (title === 'Edit Teacher') {
+		passwordInput.removeAttribute('required');
+		passwordInput.placeholder = 'Leave blank to keep unchanged';
+		form.action = `teacherHandler/edit?id=${id}`;
+	} else {
+		passwordInput.required = true;
+		passwordInput.placeholder = 'Enter password';
+		form.action = 'addTeacher';
+	}
+}
+
+function closeTeacherModal() {
+	const modal = document.getElementById('formTeacherModal');
+	modal.style.display = 'none';
+
+	const form = document.getElementById('teacherForm');
+	form.reset();
+	document.getElementById('formTitle').textContent = 'Add Teacher';
 }
 
 // Optional: Close modal when clicking outside
@@ -56,8 +88,44 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
+
+
+
 function deleteStudent(id) {
 	fetch('deleteStudent?id=' + id, {
+		method: 'GET'
+	})
+		.then(response => response.text())
+		.then(data => {
+			alert(data);            // Optional: show response
+			location.reload();      // Refresh the page after deletion
+		})
+		.catch(error => {
+			console.error('Error:', error);
+			alert('Something went wrong.');
+		});
+}
+
+
+
+function deleteTeacher(id) {
+	fetch('deleteTeacher?id=' + id, {
+		method: 'GET'
+	})
+		.then(response => response.text())
+		.then(data => {
+			alert(data);            // Optional: show response
+			location.reload();      // Refresh the page after deletion
+		})
+		.catch(error => {
+			console.error('Error:', error);
+			alert('Something went wrong.');
+		});
+}
+
+
+function deleteSubject(id) {
+	fetch('deleteSubject?id=' + id, {
 		method: 'GET'
 	})
 		.then(response => response.text())
