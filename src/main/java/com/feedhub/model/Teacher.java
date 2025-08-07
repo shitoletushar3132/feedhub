@@ -12,7 +12,11 @@ public class Teacher {
         this.name = name;
     }
 
-    public int getId() { return id; }
+    @Override
+	public String toString() {
+		return "Teacher [id=" + id + ", user=" + user + ", name=" + name + "]";
+	}
+	public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public User getUser() { return user; }

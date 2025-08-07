@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.feedhub.dao.daoInterfaces.TeacherDAO;
+import com.feedhub.model.Role;
 import com.feedhub.model.Teacher;
 import com.feedhub.model.User;
 
@@ -32,18 +33,38 @@ public class TeacherDAOImpl implements TeacherDAO {
 
 	@Override
 	public Teacher getTeacherById(int id) {
-		String sql = "SELECT * FROM teachers AS t JOIN users as u ON t.user_id = u.id WHERE id = ?";
+		System.out.println("id" + id);
+		String sql = "SELECT t.id AS teacher_id, t.name AS teacher_name, "
+		           + "u.id AS user_id, u.email, u.role_id, "
+		           + "u.username as username,"
+		           + "r.name AS role_name "
+		           + "FROM teachers AS t "
+		           + "JOIN users AS u ON t.user_id = u.id "
+		           + "JOIN roles AS r ON u.role_id = r.id "
+		           + "WHERE t.id = ?";
+
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				Teacher t = new Teacher();
-				t.setId(rs.getInt("id"));
-				t.setName(rs.getString("name"));
+				t.setId(rs.getInt("teacher_id"));
+				t.setName(rs.getString("teacher_name"));
+
+				Role role = new Role();
+				role.setId(rs.getInt("role_id"));
+				role.setName(rs.getString("role_name"));
+
 				User user = new User();
 				user.setId(rs.getInt("user_id"));
 				user.setEmail(rs.getString("email"));
+				user.setUsername(rs.getString("username"));
+				user.setRole(role);
+
 				t.setUser(user);
+
+				System.out.println(t);
+				
 				return t;
 			}
 		} catch (SQLException e) {

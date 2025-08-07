@@ -57,7 +57,7 @@ public class TeacherMethods {
 
 		try {
 
-			Role role = roleDAO.getRoleByName("student");
+			Role role = roleDAO.getRoleByName("teacher");
 
 			User user = new User();
 			user.setUsername(username);

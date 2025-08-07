@@ -64,6 +64,10 @@ response.setDateHeader("Expires", 0); // Proxies
 					<li class="nav-item"><a class="nav-link"
 						href="<%=request.getContextPath()%>/admin/getSubjects">Manage
 							Subjects</a></li>
+					<li class="nav-item"><a class="nav-link"
+						href="<%=request.getContextPath()%>/admin/assignSubject">Assign
+							Subjects</a></li>
+
 					<%
 					} else if ("student".equalsIgnoreCase(roleName)) {
 					%>
@@ -96,7 +100,7 @@ response.setDateHeader("Expires", 0); // Proxies
 					if (currentUser != null) {
 					%>
 					<li class="nav-item">
-						<form method="post" action="/feedhub/logout"
+						<form method="post" action="/feedhub/LogoutServlet"
 							style="display: inline;">
 							<button type="submit" class="nav-link btn btn-link text-danger"
 								style="text-decoration: none;">Logout</button>
@@ -104,8 +108,6 @@ response.setDateHeader("Expires", 0); // Proxies
 					</li>
 					<%
 					}
-					%>
-
 					%>
 				</ul>
 			</div>

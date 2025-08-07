@@ -94,34 +94,5 @@
 		}
 		%>
 	</div>
-
-	<div>
-		<h3>Assign Subject to Teacher</h3>
-		<form action="assignSubject" method="post">
-			<label for="teacherId">Select Teacher:</label> <select
-				name="teacherId" required>
-				<%
-				List<Teacher> teachers2 = (List<Teacher>) request.getAttribute("teachers");
-				for (Teacher t : teachers2) {
-				%>
-				<option value="<%=t.getId()%>"><%=t.getName()%></option>
-				<%
-				}
-				%>
-			</select> <label for="subjectId">Select Subject:</label> <select
-				name="subjectId" required>
-				<%
-				List<Subject> subjects = (List<Subject>) request.getAttribute("subjects");
-				for (Subject s : subjects) {
-				%>
-				<option value="<%=s.getId()%>"><%=s.getName()%></option>
-				<%
-				}
-				%>
-			</select>
-
-			<button type="submit">Assign</button>
-		</form>
-	</div>
 </body>
 </html>

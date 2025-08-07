@@ -44,9 +44,11 @@ public class Teacher_SubjectDAOImpl implements Teacher_SubjectDAO {
 	@Override
 	public List<TeacherSubjectDTO> getSubjectsByTeacher(int teacherId) {
 		List<TeacherSubjectDTO> list = new ArrayList<>();
-		String sql = "SELECT t.teacher_id, t.teacher_name, s.subject_id, s.subject_name " + "FROM teacher_subject ts "
-				+ "JOIN teacher t ON ts.teacher_id = t.teacher_id " + "JOIN subject s ON ts.subject_id = s.subject_id "
-				+ "WHERE t.teacher_id = ?";
+		String sql = "SELECT t.id AS teacher_id, t.name AS teacher_name, "
+				+ "s.id AS subject_id, s.name AS subject_name " + "FROM teacher_subject ts "
+				+ "JOIN teachers t ON ts.teacher_id = t.id " + "JOIN subjects s ON ts.subject_id = s.id "
+				+ "WHERE t.id = ?";
+
 		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 			stmt.setInt(1, teacherId);
 			ResultSet rs = stmt.executeQuery();
@@ -63,9 +65,11 @@ public class Teacher_SubjectDAOImpl implements Teacher_SubjectDAO {
 	@Override
 	public List<TeacherSubjectDTO> getTeachersBySubject(int subjectId) {
 		List<TeacherSubjectDTO> list = new ArrayList<>();
-		String sql = "SELECT t.teacher_id, t.teacher_name, s.subject_id, s.subject_name " + "FROM teacher_subject ts "
-				+ "JOIN teacher t ON ts.teacher_id = t.teacher_id " + "JOIN subject s ON ts.subject_id = s.subject_id "
-				+ "WHERE s.subject_id = ?";
+		String sql = "SELECT t.id AS teacher_id, t.name AS teacher_name, "
+				+ "s.id AS subject_id, s.name AS subject_name " + "FROM teacher_subject ts "
+				+ "JOIN teachers t ON ts.teacher_id = t.id " + "JOIN subjects s ON ts.subject_id = s.id "
+				+ "WHERE s.id = ?";
+
 		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 			stmt.setInt(1, subjectId);
 			ResultSet rs = stmt.executeQuery();
@@ -82,8 +86,10 @@ public class Teacher_SubjectDAOImpl implements Teacher_SubjectDAO {
 	@Override
 	public List<TeacherSubjectDTO> getAllTeacherSubjectMappings() {
 		List<TeacherSubjectDTO> list = new ArrayList<>();
-		String sql = "SELECT t.teacher_id, t.teacher_name, s.subject_id, s.subject_name " + "FROM teacher_subject ts "
-				+ "JOIN teacher t ON ts.teacher_id = t.teacher_id " + "JOIN subject s ON ts.subject_id = s.subject_id";
+		String sql = "SELECT t.id AS teacher_id, t.name AS teacher_name, "
+				+ "s.id AS subject_id, s.name AS subject_name " + "FROM teacher_subject ts "
+				+ "JOIN teachers t ON ts.teacher_id = t.id " + "JOIN subjects s ON ts.subject_id = s.id";
+
 		try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {

@@ -42,7 +42,7 @@ public class StudentDAOImpl implements StudentDAO {
 	public Student getStudentById(int id) {
 		String sql = "SELECT " + "s.name AS student_name, s.roll_no, s.id AS studentId, "
 				+ "u.id AS userId, u.username, u.email, " + "r.id AS roleId, r.name AS role_name " + "FROM students s "
-				+ "JOIN users u ON s.user_id = u.id " + "JOIN roles r ON u.role_id = r.id " + "WHERE s.id = ?";
+				+ "JOIN users u ON s.user_id = u.id " + "JOIN roles r ON u.role_id = r.id " + "WHERE s.user_id = ?";
 
 		Student student = null;
 

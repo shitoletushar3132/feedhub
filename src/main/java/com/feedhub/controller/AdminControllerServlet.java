@@ -65,11 +65,11 @@ public class AdminControllerServlet extends HttpServlet {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException {
 		String path = request.getPathInfo();
 
 		switch (path) {
@@ -91,6 +91,9 @@ public class AdminControllerServlet extends HttpServlet {
 		case "/deleteSubject":
 			subjectHandler.deleteSubject(request, response);
 			break;
+		case "/assignSubject":
+			getAssignSubject(request, response);
+			break;
 		default:
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Unknown GET path: " + path);
 		}
@@ -109,10 +112,19 @@ public class AdminControllerServlet extends HttpServlet {
 		} else if ("/addSubject".equals(path)) {
 			subjectHandler.addSubject(request, response);
 		} else if ("/assignSubject".equals(path)) {
-
+			assignSubject(request, response);
 		} else {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Unknown POST path: " + path);
 		}
+	}
+
+	private void getAssignSubject(HttpServletRequest req, HttpServletResponse res)
+			throws IOException, ServletException {
+
+		req.setAttribute("teacherSubject", teacherSubjectDAO.getAllTeacherSubjectMappings());
+		req.setAttribute("subjects", subjectDAO.getAllSubjects());
+		req.setAttribute("teachers", teacherDAO.getAllTeachers());
+		req.getRequestDispatcher("/assignSubjects.jsp").forward(req, res);
 	}
 
 	private void assignSubject(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -122,9 +134,11 @@ public class AdminControllerServlet extends HttpServlet {
 		boolean success = teacherSubjectDAO.assignTeacherToSubject(teacherId, subjectId);
 
 		if (success) {
-			resp.sendRedirect("admin-dashboard.jsp?message=assigned");
+			resp.sendRedirect(req.getContextPath() + "/admin/assignSubject?message=assigned");
+			return;
 		} else {
-			resp.sendRedirect("admin-dashboard.jsp?error=assign_failed");
+			resp.sendRedirect(req.getContextPath() + "/admin/assignSubject?message=duplicateError");
+			return;
 		}
 	}
 

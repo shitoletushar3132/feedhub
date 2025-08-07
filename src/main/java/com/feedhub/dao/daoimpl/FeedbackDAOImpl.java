@@ -33,6 +33,7 @@ public class FeedbackDAOImpl implements FeedbackDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println(feedback.getTeacher());
 		return false;
 	}
 
